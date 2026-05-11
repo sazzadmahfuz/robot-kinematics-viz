@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robot Arm Kinematics Visualizer — Sazzad Ibna Mahfuz</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=JetBrains+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--cyan:#00FFD1;--purple:#7B61FF;--red:#EF4444;--bg:#07090D;--bg2:#0D1117;--bg3:#161B22;--border:rgba(0,255,209,0.12);--text:#E6EDF3;--muted:#7D8590}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+header{background:rgba(13,17,23,.95);border-bottom:0.5px solid var(--border);padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10;backdrop-filter:blur(12px)}
+.logo{font-family:'Orbitron',monospace;font-size:.9rem;color:var(--purple)}
+.back{color:var(--muted);text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:.75rem;transition:color .2s}
+.back:hover{color:var(--cyan)}
+main{max-width:1200px;margin:0 auto;padding:2rem}
+h1{font-family:'Orbitron',monospace;font-size:1.6rem;font-weight:700;margin-bottom:.25rem}
+.subtitle{color:var(--muted);font-size:.85rem;font-family:'JetBrains Mono',monospace;margin-bottom:2rem}
+
+.layout{display:grid;grid-template-columns:1fr 340px;gap:1.5rem}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+
+/* CANVAS */
+.canvas-card{background:var(--bg3);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;position:relative}
+#armCanvas{display:block;width:100%;cursor:crosshair}
+.canvas-label{position:absolute;top:1rem;left:1rem;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:rgba(0,255,209,.6)}
+.coord-display{position:absolute;bottom:1rem;left:1rem;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--cyan);background:rgba(0,0,0,.6);padding:.3rem .6rem;border-radius:4px;border:0.5px solid var(--border)}
+.mode-badge{position:absolute;top:1rem;right:1rem;font-family:'JetBrains Mono',monospace;font-size:.65rem;padding:.25rem .7rem;border-radius:99px;border:0.5px solid}
+
+/* CONTROLS PANEL */
+.panel{display:flex;flex-direction:column;gap:1rem}
+.panel-card{background:var(--bg3);border:0.5px solid var(--border);border-radius:12px;padding:1.25rem}
+.panel-title{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--cyan);text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem}
+
+/* JOINT SLIDERS */
+.joint-row{margin-bottom:1rem}
+.joint-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem}
+.joint-name{font-size:.8rem;color:var(--text)}
+.joint-val{font-family:'Orbitron',monospace;font-size:.85rem;color:var(--cyan)}
+input[type=range]{width:100%;accent-color:var(--cyan);height:3px;cursor:pointer}
+
+/* FK / IK toggle */
+.mode-toggle{display:flex;gap:.5rem;margin-bottom:1rem}
+.mode-btn{flex:1;padding:.5rem;border:0.5px solid var(--border);border-radius:6px;background:transparent;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:.72rem;cursor:pointer;transition:all .2s}
+.mode-btn.active{background:rgba(0,255,209,.1);border-color:var(--cyan);color:var(--cyan)}
+
+/* METRICS */
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.metric-mini{background:var(--bg2);border-radius:6px;padding:.6rem .75rem;border:0.5px solid rgba(255,255,255,.06)}
+.metric-mini-label{font-size:.65rem;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:.2rem}
+.metric-mini-val{font-family:'Orbitron',monospace;font-size:1rem;color:var(--text)}
+
+/* LINK LENGTHS */
+.link-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem}
+.link-swatch{width:16px;height:4px;border-radius:2px;flex-shrink:0}
+.link-label{font-size:.78rem;color:var(--text);flex:1}
+.link-len{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--muted)}
+.link-len-input{width:60px;background:var(--bg2);border:0.5px solid var(--border);border-radius:4px;padding:.2rem .4rem;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.75rem;text-align:center}
+
+/* PLAY BUTTON */
+.play-btn{width:100%;padding:.7rem;border:0.5px solid var(--border);border-radius:8px;background:rgba(0,255,209,.06);color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:.78rem;cursor:pointer;transition:all .2s;margin-top:.5rem}
+.play-btn:hover{background:rgba(0,255,209,.15)}
+.play-btn.playing{border-color:var(--red);color:var(--red);background:rgba(239,68,68,.06)}
+
+footer{text-align:center;padding:2rem;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted)}
+footer a{color:var(--cyan);text-decoration:none}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">KINEMATICS VIZ</div>
+  <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted)">click canvas for IK target</span>
+  <a href="../../index.html" class="back">← Back to Portfolio</a>
+</header>
+
+<main>
+  <h1>Robot Arm Kinematics Visualizer</h1>
+  <p class="subtitle">// Robot Kinematics — HAMK University · 3-DOF Planar Arm · Forward & Inverse Kinematics</p>
+
+  <div class="layout">
+    <!-- CANVAS -->
+    <div class="canvas-card">
+      <canvas id="armCanvas" height="500"></canvas>
+      <div class="canvas-label">// 3-DOF PLANAR ROBOT ARM</div>
+      <div class="coord-display" id="coordDisplay">EE: (0, 0) mm</div>
+      <div class="mode-badge" id="modeBadge" style="color:var(--cyan);border-color:rgba(0,255,209,.3)">FK MODE</div>
+    </div>
+
+    <!-- PANEL -->
+    <div class="panel">
+      <!-- MODE -->
+      <div class="panel-card">
+        <div class="panel-title">Control Mode</div>
+        <div class="mode-toggle">
+          <button class="mode-btn active" id="fk-btn" onclick="setMode('fk')">FK — Forward</button>
+          <button class="mode-btn" id="ik-btn" onclick="setMode('ik')">IK — Inverse</button>
+        </div>
+        <div style="font-size:.75rem;color:var(--muted);line-height:1.6" id="mode-hint">
+          Control each joint angle directly. The end-effector follows the arm configuration.
+        </div>
+      </div>
+
+      <!-- JOINT CONTROLS -->
+      <div class="panel-card" id="fk-panel">
+        <div class="panel-title">Joint Angles</div>
+        <div class="joint-row">
+          <div class="joint-header"><span class="joint-name">θ₁ — Shoulder</span><span class="joint-val" id="disp-j1">0°</span></div>
+          <input type="range" id="j1" min="-180" max="180" value="0" oninput="updateFK()">
+        </div>
+        <div class="joint-row">
+          <div class="joint-header"><span class="joint-name">θ₂ — Elbow</span><span class="joint-val" id="disp-j2">45°</span></div>
+          <input type="range" id="j2" min="-150" max="150" value="45" oninput="updateFK()">
+        </div>
+        <div class="joint-row">
+          <div class="joint-header"><span class="joint-name">θ₃ — Wrist</span><span class="joint-val" id="disp-j3">-30°</span></div>
+          <input type="range" id="j3" min="-150" max="150" value="-30" oninput="updateFK()">
+        </div>
+      </div>
+
+      <div class="panel-card" id="ik-panel" style="display:none">
+        <div class="panel-title">IK Target Position</div>
+        <div style="font-size:.8rem;color:var(--muted);margin-bottom:.75rem">Click anywhere on the canvas to set the target. The arm will solve automatically.</div>
+        <div class="metrics-grid" style="margin-bottom:.75rem">
+          <div class="metric-mini"><div class="metric-mini-label">Target X</div><div class="metric-mini-val" id="ik-x">—</div></div>
+          <div class="metric-mini"><div class="metric-mini-label">Target Y</div><div class="metric-mini-val" id="ik-y">—</div></div>
+        </div>
+        <div style="font-size:.72rem;font-family:'JetBrains Mono',monospace;color:var(--muted)" id="ik-status">Waiting for target…</div>
+      </div>
+
+      <!-- LINK LENGTHS -->
+      <div class="panel-card">
+        <div class="panel-title">Link Lengths (px)</div>
+        <div class="link-row"><div class="link-swatch" style="background:#7B61FF"></div><span class="link-label">L1 — Upper arm</span><input class="link-len-input" id="len1" type="number" value="130" min="30" max="250" oninput="updateFK()"></div>
+        <div class="link-row"><div class="link-swatch" style="background:#00FFD1"></div><span class="link-label">L2 — Forearm</span><input class="link-len-input" id="len2" type="number" value="100" min="30" max="200" oninput="updateFK()"></div>
+        <div class="link-row"><div class="link-swatch" style="background:#F59E0B"></div><span class="link-label">L3 — Hand</span><input class="link-len-input" id="len3" type="number" value="60" min="20" max="120" oninput="updateFK()"></div>
+      </div>
+
+      <!-- METRICS -->
+      <div class="panel-card">
+        <div class="panel-title">End-Effector State</div>
+        <div class="metrics-grid">
+          <div class="metric-mini"><div class="metric-mini-label">X position</div><div class="metric-mini-val" id="ee-x">—</div></div>
+          <div class="metric-mini"><div class="metric-mini-label">Y position</div><div class="metric-mini-val" id="ee-y">—</div></div>
+          <div class="metric-mini"><div class="metric-mini-label">Reach</div><div class="metric-mini-val" id="ee-r">—</div></div>
+          <div class="metric-mini"><div class="metric-mini-label">Orientation</div><div class="metric-mini-val" id="ee-a">—</div></div>
+        </div>
+        <button class="play-btn" id="playBtn" onclick="toggleAnim()">▶ Auto-animate</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  Robot Kinematics Visualizer · <a href="https://github.com/sazzadmahfuz/robot-kinematics-viz">github.com/sazzadmahfuz/robot-kinematics-viz</a> · HAMK Robotics
+</footer>
+
+<script>
+const canvas=document.getElementById('armCanvas');
+const ctx=canvas.getContext('2d');
+let W,H,OX,OY;
+let mode='fk';
+let animPlaying=false,animT=0,animFrame=null;
+let ikTarget=null;
+let joints={j1:0,j2:45*Math.PI/180,j3:-30*Math.PI/180};
+
+function resize(){W=canvas.offsetWidth;canvas.width=W;H=500;canvas.height=H;OX=W/2;OY=H-60;draw()}
+window.addEventListener('resize',resize);
+
+function getLinks(){return[+document.getElementById('len1').value,+document.getElementById('len2').value,+document.getElementById('len3').value]}
+
+function fk(j1,j2,j3){
+  const [L1,L2,L3]=getLinks();
+  const a1=j1,a2=j1+j2,a3=j1+j2+j3;
+  const p0=[OX,OY];
+  const p1=[OX+L1*Math.cos(a1),OY-L1*Math.sin(a1)];
+  const p2=[p1[0]+L2*Math.cos(a2),p1[1]-L2*Math.sin(a2)];
+  const p3=[p2[0]+L3*Math.cos(a3),p2[1]-L3*Math.sin(a3)];
+  return{points:[p0,p1,p2,p3],angles:[a1,a2,a3]};
+}
+
+function solveIK(tx,ty){
+  const [L1,L2,L3]=getLinks();
+  // IK for 2-link reaching wrist, then solve wrist angle
+  // target wrist position (subtract L3 pointing toward target)
+  const dx=tx-OX,dy=OY-ty;
+  const ang=Math.atan2(dy,dx);
+  const wx=dx-L3*Math.cos(ang),wy=dy-L3*Math.sin(ang);
+  const r=Math.sqrt(wx*wx+wy*wy);
+  const maxR=L1+L2;
+  if(r>maxR){const s=maxR/r;wx&&(wx*=s);wy&&(wy*=s)}
+  const cosA2=(wx*wx+wy*wy-L1*L1-L2*L2)/(2*L1*L2);
+  const clamped=Math.max(-1,Math.min(1,cosA2));
+  const a2=Math.acos(clamped);
+  const a1=Math.atan2(wy,wx)-Math.atan2(L2*Math.sin(a2),L1+L2*Math.cos(a2));
+  const a3=ang-a1-a2;
+  joints.j1=a1;joints.j2=a2;joints.j3=a3;
+  return{j1:a1,j2:a2,j3:a3};
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  // background
+  ctx.fillStyle='#0D1117';ctx.fillRect(0,0,W,H);
+  // grid
+  ctx.strokeStyle='rgba(0,255,209,0.04)';ctx.lineWidth=1;
+  for(let x=0;x<W;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
+  for(let y=0;y<H;y+=50){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+  // workspace circle
+  const [L1,L2,L3]=getLinks();
+  ctx.beginPath();ctx.arc(OX,OY,L1+L2+L3,0,Math.PI*2);
+  ctx.strokeStyle='rgba(0,255,209,0.06)';ctx.lineWidth=1.5;ctx.setLineDash([6,6]);ctx.stroke();ctx.setLineDash([]);
+  ctx.beginPath();ctx.arc(OX,OY,Math.abs(L1-L2-L3),0,Math.PI*2);
+  ctx.strokeStyle='rgba(123,97,255,0.06)';ctx.stroke();
+
+  const j1=mode==='fk'?+document.getElementById('j1').value*Math.PI/180:joints.j1;
+  const j2=mode==='fk'?+document.getElementById('j2').value*Math.PI/180:joints.j2;
+  const j3=mode==='fk'?+document.getElementById('j3').value*Math.PI/180:joints.j3;
+  const arm=fk(j1,j2,j3);
+  const pts=arm.points;
+
+  // IK target
+  if(ikTarget&&mode==='ik'){
+    ctx.beginPath();ctx.arc(ikTarget[0],ikTarget[1],8,0,Math.PI*2);
+    ctx.strokeStyle='rgba(239,68,68,.8)';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.beginPath();ctx.moveTo(ikTarget[0]-14,ikTarget[1]);ctx.lineTo(ikTarget[0]+14,ikTarget[1]);ctx.moveTo(ikTarget[0],ikTarget[1]-14);ctx.lineTo(ikTarget[0],ikTarget[1]+14);
+    ctx.strokeStyle='rgba(239,68,68,.6)';ctx.lineWidth=1;ctx.stroke();
+    // line from ee to target
+    ctx.beginPath();ctx.moveTo(pts[3][0],pts[3][1]);ctx.lineTo(ikTarget[0],ikTarget[1]);
+    const d=Math.hypot(pts[3][0]-ikTarget[0],pts[3][1]-ikTarget[1]);
+    ctx.strokeStyle=d<5?'rgba(0,255,209,.3)':'rgba(239,68,68,.2)';ctx.lineWidth=1;ctx.setLineDash([4,4]);ctx.stroke();ctx.setLineDash([]);
+  }
+
+  // shadow
+  ctx.beginPath();pts.forEach((p,i)=>i===0?ctx.moveTo(p[0]+4,p[1]+4):ctx.lineTo(p[0]+4,p[1]+4));
+  ctx.strokeStyle='rgba(0,0,0,.4)';ctx.lineWidth=12;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();
+
+  // links
+  const colors=['#7B61FF','#00FFD1','#F59E0B'];
+  const widths=[10,8,6];
+  for(let i=0;i<3;i++){
+    ctx.beginPath();ctx.moveTo(pts[i][0],pts[i][1]);ctx.lineTo(pts[i+1][0],pts[i+1][1]);
+    ctx.strokeStyle=colors[i];ctx.lineWidth=widths[i];ctx.lineCap='round';ctx.stroke();
+    // highlight stripe
+    ctx.beginPath();ctx.moveTo(pts[i][0],pts[i][1]);ctx.lineTo(pts[i+1][0],pts[i+1][1]);
+    ctx.strokeStyle='rgba(255,255,255,.12)';ctx.lineWidth=widths[i]-4;ctx.stroke();
+  }
+
+  // joints
+  const jColors=['#7B61FF','#9D88FF','#00FFD1'];
+  const jR=[12,10,8,6];
+  for(let i=0;i<4;i++){
+    ctx.beginPath();ctx.arc(pts[i][0],pts[i][1],jR[i],0,Math.PI*2);
+    ctx.fillStyle=i<3?jColors[i]:'#fff';ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,.5)';ctx.lineWidth=1.5;ctx.stroke();
+    // glow
+    ctx.beginPath();ctx.arc(pts[i][0],pts[i][1],jR[i]+5,0,Math.PI*2);
+    const g=ctx.createRadialGradient(pts[i][0],pts[i][1],jR[i]-2,pts[i][0],pts[i][1],jR[i]+5);
+    g.addColorStop(0,'rgba(0,255,209,.2)');g.addColorStop(1,'transparent');
+    ctx.fillStyle=g;ctx.fill();
+  }
+
+  // base
+  ctx.beginPath();ctx.moveTo(OX-20,OY+2);ctx.lineTo(OX+20,OY+2);ctx.strokeStyle='#555';ctx.lineWidth=3;ctx.stroke();
+  ctx.beginPath();ctx.moveTo(OX-30,OY+8);ctx.lineTo(OX+30,OY+8);ctx.strokeStyle='#444';ctx.lineWidth=2;ctx.stroke();
+
+  // angle arcs
+  [0,1,2].forEach(i=>{
+    const p=pts[i];const a=arm.angles[i];const prev=i===0?0:arm.angles[i-1];
+    ctx.beginPath();ctx.arc(p[0],p[1],20+i*3,Math.PI-(i===0?a:prev),Math.PI-(i===0?a:prev)+([j1,j2,j3][i]));
+    ctx.strokeStyle=colors[i]+'88';ctx.lineWidth=1.5;ctx.stroke();
+  });
+
+  // ee crosshair
+  const ee=pts[3];
+  ctx.beginPath();ctx.moveTo(ee[0]-10,ee[1]);ctx.lineTo(ee[0]+10,ee[1]);ctx.moveTo(ee[0],ee[1]-10);ctx.lineTo(ee[0],ee[1]+10);
+  ctx.strokeStyle='rgba(255,255,255,.7)';ctx.lineWidth=1;ctx.stroke();
+
+  // update HUD
+  const relX=Math.round(ee[0]-OX),relY=Math.round(OY-ee[1]);
+  const reach=Math.round(Math.hypot(relX,relY));
+  const orientation=Math.round((j1+j2+j3)*180/Math.PI);
+  document.getElementById('coordDisplay').textContent=`EE: (${relX}, ${relY}) px | reach: ${reach}`;
+  document.getElementById('ee-x').textContent=relX+'px';
+  document.getElementById('ee-y').textContent=relY+'px';
+  document.getElementById('ee-r').textContent=reach+'px';
+  document.getElementById('ee-a').textContent=orientation+'°';
+  if(mode==='fk'){
+    document.getElementById('disp-j1').textContent=Math.round(j1*180/Math.PI)+'°';
+    document.getElementById('disp-j2').textContent=Math.round(j2*180/Math.PI)+'°';
+    document.getElementById('disp-j3').textContent=Math.round(j3*180/Math.PI)+'°';
+  }
+}
+
+function updateFK(){draw()}
+
+function setMode(m){
+  mode=m;
+  document.getElementById('fk-btn').classList.toggle('active',m==='fk');
+  document.getElementById('ik-btn').classList.toggle('active',m==='ik');
+  document.getElementById('fk-panel').style.display=m==='fk'?'block':'none';
+  document.getElementById('ik-panel').style.display=m==='ik'?'block':'none';
+  document.getElementById('modeBadge').textContent=m.toUpperCase()+' MODE';
+  document.getElementById('mode-hint').textContent=m==='fk'?'Control each joint angle directly.':'Click on the canvas to set a target and watch IK solve.';
+  if(m==='fk')stopAnim();
+  draw();
+}
+
+// IK click
+canvas.addEventListener('click',function(e){
+  if(mode!=='ik')return;
+  const rect=canvas.getBoundingClientRect();
+  const x=(e.clientX-rect.left)*(W/rect.width),y=(e.clientY-rect.top)*(H/rect.height);
+  ikTarget=[x,y];
+  document.getElementById('ik-x').textContent=Math.round(x-OX)+'px';
+  document.getElementById('ik-y').textContent=Math.round(OY-y)+'px';
+  solveIK(x,y);
+  const ee=fk(joints.j1,joints.j2,joints.j3).points[3];
+  const d=Math.hypot(ee[0]-x,ee[1]-y);
+  document.getElementById('ik-status').textContent=d<5?'✓ Target reached':'⚠ Out of workspace — clamped';
+  draw();
+});
+
+// Animation
+function toggleAnim(){
+  animPlaying=!animPlaying;
+  const btn=document.getElementById('playBtn');
+  btn.textContent=animPlaying?'⏹ Stop':'▶ Auto-animate';
+  btn.classList.toggle('playing',animPlaying);
+  if(animPlaying)animLoop();else{cancelAnimationFrame(animFrame);}
+}
+function stopAnim(){animPlaying=false;cancelAnimationFrame(animFrame);document.getElementById('playBtn').textContent='▶ Auto-animate';document.getElementById('playBtn').classList.remove('playing')}
+function animLoop(){
+  if(!animPlaying)return;
+  animT+=.012;
+  if(mode==='fk'){
+    document.getElementById('j1').value=Math.round(Math.sin(animT)*80);
+    document.getElementById('j2').value=Math.round(Math.sin(animT*1.3+1)*60+30);
+    document.getElementById('j3').value=Math.round(Math.sin(animT*1.7+2)*50-15);
+  }else{
+    const r=100;const cx=OX,cy=OY-140;
+    const tx=cx+r*Math.cos(animT),ty=cy+r*Math.sin(animT);
+    ikTarget=[tx,ty];
+    solveIK(tx,ty);
+    document.getElementById('ik-x').textContent=Math.round(tx-OX)+'px';
+    document.getElementById('ik-y').textContent=Math.round(OY-ty)+'px';
+  }
+  draw();
+  animFrame=requestAnimationFrame(animLoop);
+}
+
+resize();
+</script>
+</body>
+</html>
