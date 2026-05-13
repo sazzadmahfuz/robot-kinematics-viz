@@ -1,4 +1,4 @@
-# 🦾 Robot Arm Kinematics Visualizer
+# Robot Arm Kinematics Visualizer
 
 <div align="center">
 
