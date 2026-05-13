@@ -17,7 +17,7 @@ Real-time 3-DOF planar robot arm simulation developed using:
 
 ---
 
-### 👨‍💻 Developed by
+### Developed by
 
 # Sazzad Ibna Mahfuz
 
@@ -28,13 +28,13 @@ Häme University of Applied Sciences (HAMK), Finland
 
 ---
 
-# 📌 Project Overview
+# Project Overview
 
 This project demonstrates a complete interactive **Robot Kinematics Visualization and Simulation System** designed for robotics education, motion analysis, and robot control understanding.
 
 The simulator was developed as part of the:
 
-# Robot Kinematics Course — HAMK University of Applied Sciences
+### Robot Kinematics Course — HAMK University of Applied Sciences
 
 The application provides a fully interactive environment for studying:
 
@@ -72,7 +72,7 @@ without any external libraries or robotics engines.
 
 ---
 
-# 🎯 Project Objectives
+# Project Objectives
 
 The main objectives of this project were:
 
@@ -91,7 +91,7 @@ The main objectives of this project were:
 
 ---
 
-# 🧠 Robot System Architecture
+# Robot System Architecture
 
 ```text
 User Input
@@ -120,7 +120,7 @@ End-Effector Metrics & HUD
 
 ---
 
-# ⚙️ Core Features
+# Core Features
 
 | Feature | Description |
 |---|---|
@@ -139,11 +139,11 @@ End-Effector Metrics & HUD
 
 ---
 
-# 🦾 Robot Manipulator Model
+# Robot Manipulator Model
 
 The simulator models a:
 
-# 3-DOF Planar Robot Arm
+### 3-DOF Planar Robot Arm
 
 consisting of:
 
@@ -165,7 +165,7 @@ consisting of:
 
 ---
 
-# 🔄 Forward Kinematics (FK)
+## 🔄 Forward Kinematics (FK)
 
 The simulator implements full forward kinematics calculations using trigonometric coordinate transformations.
 
@@ -216,7 +216,7 @@ P_3=P_2+L_3[\cos(\alpha_3),\sin(\alpha_3)]
 
 ## FK JavaScript Implementation
 
-```javascript
+```JavaScript
 function fk(j1, j2, j3) {
     const [L1, L2, L3] = getLinks();
 
@@ -245,7 +245,7 @@ function fk(j1, j2, j3) {
 
 ---
 
-# 🎯 Inverse Kinematics (IK)
+# Inverse Kinematics (IK)
 
 The system also implements an analytical/geometric inverse kinematics solver.
 
@@ -257,7 +257,7 @@ Target Position → Joint Angles
 
 ---
 
-# 🧮 IK Solver Strategy
+# IK Solver Strategy
 
 The IK solver works in four major steps:
 
@@ -294,7 +294,7 @@ The IK solver works in four major steps:
 
 ---
 
-# 💻 IK JavaScript Implementation
+# IK JavaScript Implementation
 
 ```javascript
 function solveIK(tx, ty) {
@@ -333,7 +333,7 @@ function solveIK(tx, ty) {
 
 ---
 
-# 📏 Workspace Analysis
+# Workspace Analysis
 
 The simulator dynamically computes the robot workspace.
 
@@ -361,11 +361,11 @@ The workspace is visualized using dashed boundary circles rendered directly on t
 
 ---
 
-# 📍 Workspace Clamping
+### Workspace Clamping
 
 One advanced feature implemented in the IK solver is:
 
-# Reachability Clamping
+### Reachability Clamping
 
 When a target is outside the reachable workspace:
 
@@ -378,11 +378,11 @@ This creates smoother robotic behavior similar to industrial manipulators.
 
 ---
 
-# 🖥️ Interactive Visualization Engine
+## Interactive Visualization Engine
 
 The rendering engine uses:
 
-# HTML5 Canvas API
+## HTML5 Canvas API
 
 to create a real-time robotics visualization environment.
 
@@ -403,7 +403,7 @@ to create a real-time robotics visualization environment.
 
 ---
 
-# 📸 Simulation Interface
+# Simulation Interface
 
 | Component | Function |
 |---|---|
@@ -416,7 +416,7 @@ to create a real-time robotics visualization environment.
 
 ---
 
-# 🎞️ Motion Animation System
+# Motion Animation System
 
 The simulator supports automated robot motion generation.
 
@@ -454,7 +454,7 @@ This creates smooth robotic movement demonstrations for both FK and IK modes.
 
 ---
 
-# 📊 Real-Time Metrics
+# Real-Time Metrics
 
 The simulator continuously computes:
 
@@ -468,7 +468,7 @@ The simulator continuously computes:
 
 ---
 
-# 🧠 Robotics Concepts Implemented
+# Robotics Concepts Implemented
 
 The project combines multiple robotics concepts including:
 
@@ -487,7 +487,7 @@ The project combines multiple robotics concepts including:
 
 ---
 
-# 🔬 Engineering Concepts Applied
+# Engineering Concepts Applied
 
 | Concept | Application |
 |---|---|
@@ -501,7 +501,7 @@ The project combines multiple robotics concepts including:
 
 ---
 
-# 🤖 Relation to Industrial Robotics
+# Relation to Industrial Robotics
 
 This simulator directly reflects concepts used in real industrial robots such as:
 
@@ -516,11 +516,11 @@ Industrial robotic systems use the same mathematical foundations implemented in 
 
 ---
 
-# 🔗 Relation to Universal Robots Certification
+### Relation to Universal Robots Certification
 
 This project strongly relates to concepts learned during:
 
-# Universal Robots e-Series Certifications
+### Universal Robots e-Series Certifications
 
 including:
 
@@ -532,15 +532,7 @@ The simulator demonstrates the same FK/IK concepts exposed in industrial robot t
 
 ---
 
-# 🎓 Academic Context
-
-Robot Kinematics Course
-Bachelor of Engineering — ICT Robotics
-Häme University of Applied Sciences (HAMK)
-
----
-
-# 📚 Topics Covered
+# Topics Covered
 
 - Forward Kinematics
 - Inverse Kinematics
@@ -556,7 +548,7 @@ Häme University of Applied Sciences (HAMK)
 
 ---
 
-# 📈 Key Learning Outcomes
+# Key Learning Outcomes
 
 This project helped develop practical robotics engineering skills in:
 
@@ -574,7 +566,7 @@ This project helped develop practical robotics engineering skills in:
 
 ---
 
-# 🔮 Future Improvements
+# Future Improvements
 
 Potential future developments include:
 
