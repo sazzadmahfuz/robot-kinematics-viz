@@ -51,15 +51,15 @@ The application provides a fully interactive environment for studying:
 
 The simulator allows users to:
 
-✅ Control robot joints interactively  
-✅ Visualize link transformations in real time  
-✅ Solve inverse kinematics numerically  
-✅ Click anywhere to move the end-effector  
-✅ Analyze workspace boundaries  
-✅ Simulate robotic trajectories  
-✅ Study arm singularities and reachability  
-✅ Animate robot motion continuously  
-✅ Observe end-effector orientation and reach
+- Control robot joints interactively  
+- Visualize link transformations in real time  
+- Solve inverse kinematics numerically  
+- Click anywhere to move the end-effector  
+- Analyze workspace boundaries  
+- Simulate robotic trajectories  
+- Study arm singularities and reachability  
+- Animate robot motion continuously  
+- Observe end-effector orientation and reach
 
 The entire project is implemented using:
 
@@ -165,7 +165,7 @@ consisting of:
 
 ---
 
-## 🔄 Forward Kinematics (FK)
+## Forward Kinematics (FK)
 
 The simulator implements full forward kinematics calculations using trigonometric coordinate transformations.
 
@@ -390,16 +390,16 @@ to create a real-time robotics visualization environment.
 
 ## Rendering Features
 
-✅ Real-time arm rendering  
-✅ Dynamic joint glow effects  
-✅ Angle arc visualization  
-✅ Workspace overlays  
-✅ IK target crosshairs  
-✅ Motion trails  
-✅ Smooth animations  
-✅ Responsive canvas scaling  
-✅ Grid visualization  
-✅ Real-time HUD updates
+- Real-time arm rendering  
+- Dynamic joint glow effects  
+- Angle arc visualization  
+- Workspace overlays  
+- IK target crosshairs  
+- Motion trails  
+- Smooth animations  
+- Responsive canvas scaling  
+- Grid visualization  
+- Real-time HUD updates
 
 ---
 
@@ -552,17 +552,17 @@ The simulator demonstrates the same FK/IK concepts exposed in industrial robot t
 
 This project helped develop practical robotics engineering skills in:
 
-✅ Robot kinematics mathematics  
-✅ FK & IK implementation  
-✅ Real-time robot simulation  
-✅ Interactive robotics interfaces  
-✅ Workspace analysis  
-✅ Coordinate transformations  
-✅ Robot rendering systems  
-✅ Motion animation  
-✅ Human–robot interaction systems  
-✅ Industrial robotics concepts  
-✅ Numerical robotics methods
+- Robot kinematics mathematics  
+- FK & IK implementation  
+- Real-time robot simulation  
+- Interactive robotics interfaces  
+- Workspace analysis  
+- Coordinate transformations  
+- Robot rendering systems  
+- Motion animation  
+- Human–robot interaction systems  
+- Industrial robotics concepts  
+- Numerical robotics methods
 
 ---
 
@@ -587,7 +587,7 @@ Potential future developments include:
 
 ---
 
-# 👨‍💻 Author
+# Author
 
 # Sazzad Ibna Mahfuz
 
